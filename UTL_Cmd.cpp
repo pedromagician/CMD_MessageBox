@@ -1,171 +1,133 @@
 ﻿#include "UTL_Cmd.h"
 #include "UTL_Conversion.h"
 
-bool UTL_Cmd::IsHelp(wstring comm)
+UTL_Cmd::UTL_Cmd()
 {
-	comm = UTL_Conversion::ToLower(comm);
-	if (comm == _T("-?") || comm == _T("-help") || comm == _T("-h")) return true;
-	return false;
+	mArguments.clear();
 }
 
-bool UTL_Cmd::IsTitle(wstring comm)
+UTL_Cmd::~UTL_Cmd()
 {
-	comm = UTL_Conversion::ToLower(comm);
-	if (comm == _T("-title")) return true;
-	return false;
-}
-
-bool UTL_Cmd::IsMessage(wstring comm)
-{
-	comm = UTL_Conversion::ToLower(comm);
-	if (comm == _T("-message")) return true;
-	return false;
-}
-
-bool UTL_Cmd::IsButton(wstring comm)
-{
-	comm = UTL_Conversion::ToLower(comm);
-	if (comm == _T("-button")) return true;
-	return false;
-}
-
-bool UTL_Cmd::IsDefault(wstring comm)
-{
-	comm = UTL_Conversion::ToLower(comm);
-	if (comm == _T("-default")) return true;
-	return false;
-}
-
-bool UTL_Cmd::IsIcon(wstring comm)
-{
-	comm = UTL_Conversion::ToLower(comm);
-	if (comm == _T("-icon")) return true;
-	return false;
 }
 
 void UTL_Cmd::Help()
 {
-	_tprintf(_T("MessageBox 0.1\n"));
+	_tprintf(_T("MessageBox 0.2\n"));
 	_tprintf(_T("	MessageBox for command line. Amiga Rulez!\n"));
 	_tprintf(_T("\nUsage:\n"));
 	_tprintf(_T("	MessageBox [OPTIONS]\n"));
 	_tprintf(_T("\nOptions:\n"));
-	_tprintf(_T("	-title TITLE\n"));
-	_tprintf(_T("		The TITLE argument specifies the title of the message box.\n"));
-	_tprintf(_T("	-message MESSAGE\n"));
-	_tprintf(_T("		The MESSAGE argument specifies the text of the message box. Newline can be embedded using \\n.\n"));
-	_tprintf(_T("	-icon ITYPE\n"));
-	_tprintf(_T("		The ITYPE argument specifies the text of the message box. Allowed options: NoIcon|Information|Question|Warning|Error.\n"));
-	_tprintf(_T("	-button BTYPE\n"));
-	_tprintf(_T("		The BTYPE argument specifies the type of the message box. Allowed options: Ok|OkCancel|YesNo|YesNoCancel.\n"));
-	_tprintf(_T("	-default N\n"));
-	_tprintf(_T("		The N argument specifies the default button. Allowed options: 1|2|3.\n"));
+
+	for (const auto& it : mArguments) {
+		for (const auto& text : it.text) {
+			_tprintf((_T("	") + text + _T(" xxx\n")).c_str());
+		}
+		_tprintf((_T("		") + it.help + _T("\n")).c_str());
+	}
 }
 
-int UTL_Cmd::ParseCommandLinbe(int argc, _TCHAR* argv[], int& iCorrectParameters, bool& bHelp, wstring& title, wstring& message, Type& type, Icon& icon, DefaultButton& def)
+void UTL_Cmd::Add(ARGUMENT_TYPE _type, int _num, ...)
 {
-	iCorrectParameters = 0;
+	ARGUMENT arg;
+	arg.text.clear();
+	arg.type = _type;
 
-	for (int i = 0; i < argc; i++) {
-		wstring tmp = argv[i];
-		tmp = UTL_Conversion::TrimWhiteChar(tmp);
+	int argCount = _num;
+	_num += 2; //help & data pointer
+	if (_type == _ENUM) _num++; //convert table
 
-		if (UTL_Cmd::IsHelp(tmp)) {
-			bHelp = true;
-			iCorrectParameters++;
-			continue;
-		}
+	va_list arglist;
+	va_start(arglist, _num);
+	for (int x = 0; x < argCount; x++) {
+		LPCWSTR tmp = va_arg(arglist, LPCWSTR);
+		arg.text.push_back(tmp);
+	}
+	arg.help = va_arg(arglist, LPCWSTR);
+	arg.pVar = static_cast <void*> (va_arg(arglist, void*));
+	if (_type == _ENUM) arg.pTable = static_cast <map<wstring, UINT> *> (va_arg(arglist, void*));
+	else arg.pTable = nullptr;
+	va_end(arglist);
 
-		if (UTL_Cmd::IsTitle(tmp)) {
-			i++;
-			if (i < argc) {
-				tmp = argv[i];
-				tmp = UTL_Conversion::TrimWhiteChar(tmp);
-				title = tmp;
-				iCorrectParameters++;
-			}
-			continue;
-		}
+	mArguments.push_back(arg);
+}
 
-		if (UTL_Cmd::IsMessage(tmp)) {
-			i++;
-			if (i < argc) {
-				tmp = argv[i];
-				tmp = UTL_Conversion::TrimWhiteChar(tmp);
-				message = tmp;
-				iCorrectParameters++;
-			}
-			continue;
-		}
+int UTL_Cmd::ParseCommandLine(int _argc, _TCHAR* _pArgv[], int& _correctParameters)
+{
+	_correctParameters = 0;
 
-		if (UTL_Cmd::IsButton(tmp)) {
-			i++;
-			if (i < argc) {
-				tmp = argv[i];
-				tmp = UTL_Conversion::TrimWhiteChar(tmp);
-				tmp = UTL_Conversion::ToLower(tmp);
-				if (tmp == _T("ok")) type = Ok;
-				else if (tmp == _T("okcancel")) type = OkCancel;
-				else if (tmp == _T("yesno")) type = YesNo;
-				else if (tmp == _T("yesnocancel")) type = YesNoCancel;
+	for (int i = 1; i < _argc; i++) {
+		bool unknown = true;
+		for (unsigned int a = 0; a < mArguments.size(); a++) {
+			if (find(mArguments[a].text.begin(), mArguments[a].text.end(), UTL_Conversion::TrimWhiteChar(_pArgv[i])) != mArguments[a].text.end()) {
+				if (mArguments[a].type == _STRING) {
+					i++;
+					if (i < _argc) {
+						wstring tmp = UTL_Conversion::TrimWhiteChar(_pArgv[i]);
+						UTL_Conversion::StringReplaceAll(tmp, _T("\\n"), _T("\n"));
+						*((wstring*)mArguments[a].pVar) = tmp;
+						_correctParameters++;
+						unknown = false;
+					}
+					break;
+				}
+				else if (mArguments[a].type == _BOOL) {
+					*((bool*)mArguments[a].pVar) = !*((bool*)mArguments[a].pVar);
+					_correctParameters++;
+					unknown = false;
+					break;
+				}
+				else if (mArguments[a].type == _TRUE) {
+					*((bool*)mArguments[a].pVar) = true;
+					_correctParameters++;
+					unknown = false;
+					break;
+				}
+				else if (mArguments[a].type == _INT) {
+					i++;
+					if (i < _argc) {
+						*((int*)mArguments[a].pVar) = UTL_Conversion::ToInt(UTL_Conversion::TrimWhiteChar(_pArgv[i]));
+						_correctParameters++;
+						unknown = false;
+					}
+					break;
+				}
+				else if (mArguments[a].type == _COLOR) {
+					i++;
+					if (i < _argc) {
+						((pair<bool, wstring>*)mArguments[a].pVar)->first = true;
+						((pair<bool, wstring>*)mArguments[a].pVar)->second = UTL_Conversion::TrimWhiteChar(_pArgv[i]);
+						_correctParameters++;
+						unknown = false;
+					}
+					break;
+				}
+				else if (mArguments[a].type == _ENUM) {
+					i++;
+					if (i < _argc) {
+						wstring key = UTL_Conversion::TrimWhiteChar(_pArgv[i]);
+						auto search = mArguments[a].pTable->find(key);
+						if (search != mArguments[a].pTable->end()) {
+							*((UINT*)mArguments[a].pVar) = search->second;
+							unknown = false;
+						}
+						else {
+							_tprintf(wstring(_T("Error - bad argument: ") + key + _T("\n")).c_str());
+							return 1;
+						}
+						_correctParameters++;
+					}
+					break;
+				}
 				else {
-					_tprintf(_T("Error - unknown button\n"));
+					_tprintf(_T("Error - unknown type\n"));
 					return 1;
 				}
-				iCorrectParameters++;
 			}
-			else {
-				_tprintf(_T("Error - unknown button\n"));
-				return 1;
-			}
-			continue;
 		}
-
-		if (UTL_Cmd::IsIcon(tmp)) {
-			i++;
-			if (i < argc) {
-				tmp = argv[i];
-				tmp = UTL_Conversion::TrimWhiteChar(tmp);
-				tmp = UTL_Conversion::ToLower(tmp);
-				if (tmp == _T("noicon")) icon = NoIcon;
-				else if (tmp == _T("information")) icon = Information;
-				else if (tmp == _T("question")) icon = Question;
-				else if (tmp == _T("warning")) icon = Warning;
-				else if (tmp == _T("error")) icon = Error;
-				else {
-					_tprintf(_T("Error - unknown icon\n"));
-					return 1;
-				}
-				iCorrectParameters++;
-			}
-			else {
-				_tprintf(_T("Error - unknown icon\n"));
-				return 1;
-			}
-			continue;
-		}
-
-		if (UTL_Cmd::IsDefault(tmp)) {
-			i++;
-			if (i < argc) {
-				tmp = argv[i];
-				tmp = UTL_Conversion::TrimWhiteChar(tmp);
-				if (tmp == _T("1")) def = Def1;
-				else if (tmp == _T("2")) def = Def2;
-				else if (tmp == _T("3")) def = Def3;
-				else {
-					_tprintf(_T("Error - unknown default button\n"));
-					return 1;
-				}
-				iCorrectParameters++;
-			}
-			else {
-				_tprintf(_T("Error - unknown default button\n"));
-				return 1;
-			}
-			continue;
+		if (unknown) {
+			_tprintf(wstring(_T("Error - unknown argument: ") + (wstring)_pArgv[i] + _T("\n")).c_str());
+			return 1;
 		}
 	}
-
 	return 0;
 }

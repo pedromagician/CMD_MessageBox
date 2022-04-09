@@ -5,6 +5,15 @@
 class UTL_Cmd
 {
 public:
+	enum ARGUMENT_TYPE { _STRING, _TRUE, _BOOL, _INT, _COLOR, _ENUM };
+	struct ARGUMENT {
+		vector<wstring>		text;
+		ARGUMENT_TYPE		type;
+		void* pVar;
+		map<wstring, UINT>* pTable;
+		wstring				help;
+	};
+
 	enum Type {
 		Ok = MB_OK,
 		OkCancel = MB_OKCANCEL,
@@ -26,14 +35,15 @@ public:
 		Def3 = MB_DEFBUTTON3,
 	};
 
-	static int ParseCommandLinbe(int argc, _TCHAR* argv[], int& iCorrectParameters, bool& bHelp, wstring& title, wstring& message, Type& type, Icon& icon, DefaultButton& def);
+private:
+	vector<ARGUMENT> mArguments;
 
-	static bool IsHelp(wstring comm);
-	static bool IsTitle(wstring comm);
-	static bool IsMessage(wstring comm);
-	static bool IsButton(wstring comm);
-	static bool IsDefault(wstring comm);
-	static bool IsIcon(wstring comm);
+public:
+	UTL_Cmd();
+	~UTL_Cmd();
+	void Add(ARGUMENT_TYPE _type, int _num, ...);
 
-	static void Help();
+	int ParseCommandLine(int _argc, _TCHAR* _pArgv[], int& _correctParameters);
+
+	void Help();
 };
