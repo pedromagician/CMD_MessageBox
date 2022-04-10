@@ -6,5 +6,5 @@ MessageBox for Windows command line.
 
 echo|set /p="@set mytmp=">1.bat\
 messagebox -message "yes or no" -button yesno>>1.bat\
-1.bat\
+call 1.bat\
 echo %mytmp%
