@@ -84,15 +84,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MessageBox.cpp" />
-    <ClCompile Include="UTL_Cmd.cpp" />
-    <ClCompile Include="UTL_Conversion.cpp" />
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="Monitors.cpp" />
+    <ClCompile Include="CommandLine.cpp" />
+    <ClCompile Include="Conversion.cpp" />
+    <ClCompile Include="MessageBoxPos.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Monitors.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="UTL_Cmd.h" />
-    <ClInclude Include="UTL_Conversion.h" />
+    <ClInclude Include="CommandLine.h" />
+    <ClInclude Include="Conversion.h" />
+    <ClInclude Include="MessageBoxPos.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project.rc" />
