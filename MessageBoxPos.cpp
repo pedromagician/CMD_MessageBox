@@ -151,14 +151,19 @@ int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT 
 		}
 		default:
 			_tprintf(wstring(_T("Error - unknown position: ") + to_wstring(MessageBoxPos::MessageBoxPosition.type) + _T("\n")).c_str());
-			MessageBoxPos::MessageBoxPosition.type = _CENTER;
+			monitor = Monitors::GetMonitorInfoPrimary(monitorSize);
+			MessageBoxPos::MessageBoxPosition.position.x = GetDiameterX(monitorSize);
+			MessageBoxPos::MessageBoxPosition.position.y = GetDiameterY(monitorSize);
+			monitor = Monitors::GetMonitorInfoPrimary(monitorSize);
 			break;
 		}
 	}
 	else {
 		_tprintf(wstring(_T("Error - problem loading information from the monitor")).c_str());
 		MessageBoxPos::MessageBoxPosition.monitor = _PRIMARY;
-		MessageBoxPos::MessageBoxPosition.type = _CENTER;
+		MessageBoxPos::MessageBoxPosition.type = _XY;
+		MessageBoxPos::MessageBoxPosition.position.x = 0;
+		MessageBoxPos::MessageBoxPosition.position.y = 0;
 	}
 
 	MessageBoxPos::MessageBoxPosition.position.x += MessageBoxPosition.delta.x;
