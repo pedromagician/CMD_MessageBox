@@ -5,6 +5,21 @@ thread_local MessageBoxPos::InformationAboutPositionOfMessageBox MessageBoxPos::
 
 LRESULT CALLBACK MessageBoxPos::SetPosition(int _code, WPARAM _wParam, LPARAM _lParam)
 {
+
+	if (_code == HC_ACTION)	{
+		CWPSTRUCT* pwp = (CWPSTRUCT*)_lParam;
+		if (pwp->message == WM_INITDIALOG) {
+			if (MessageBoxPos::MessageBoxPosition.button1.second.empty() == false)
+				SetDlgItemText(pwp->hwnd, MessageBoxPos::MessageBoxPosition.button1.first, MessageBoxPos::MessageBoxPosition.button1.second.c_str());
+
+			if (MessageBoxPos::MessageBoxPosition.button2.second.empty() == false)
+				SetDlgItemText(pwp->hwnd, MessageBoxPos::MessageBoxPosition.button2.first, MessageBoxPos::MessageBoxPosition.button2.second.c_str());
+
+			if (MessageBoxPos::MessageBoxPosition.button3.second.empty() == false)
+				SetDlgItemText(pwp->hwnd, MessageBoxPos::MessageBoxPosition.button3.first, MessageBoxPos::MessageBoxPosition.button3.second.c_str());
+		}
+	}
+
 	switch (MessageBoxPos::MessageBoxPosition.type) {
 	case _RIGHT_CENTER: {
 		if (_code == HCBT_CREATEWND) {
@@ -76,10 +91,8 @@ LRESULT CALLBACK MessageBoxPos::SetPosition(int _code, WPARAM _wParam, LPARAM _l
 	return CallNextHookEx(nullptr, _code, _wParam, _lParam);
 }
 
-int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT _type, struct MessageBoxPos::InformationAboutPositionOfMessageBox _position)
+int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT _type)
 {
-	MessageBoxPos::MessageBoxPosition = _position;
-
 	bool monitor = true;
 	RECT monitorSize = { 0 };
 
@@ -106,7 +119,6 @@ int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT 
 			MessageBoxPos::MessageBoxPosition.type = _CENTER;
 		}
 	}
-
 
 	if (monitor) {
 		switch (MessageBoxPos::MessageBoxPosition.type) {
@@ -169,9 +181,12 @@ int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT 
 	MessageBoxPos::MessageBoxPosition.position.x += MessageBoxPosition.delta.x;
 	MessageBoxPos::MessageBoxPosition.position.y += MessageBoxPosition.delta.y;
 
-	HHOOK hHook = SetWindowsHookEx(WH_CBT, &SetPosition, nullptr, GetCurrentThreadId());
-	int result = ::MessageBox(_hWnd, _text, _caption, _type);
-	if (hHook) UnhookWindowsHookEx(hHook);
+	HHOOK hHook1 = SetWindowsHookEx(WH_CBT, &SetPosition, nullptr, GetCurrentThreadId());
+	HHOOK hHook2 = SetWindowsHookEx(WH_CALLWNDPROC, &SetPosition, nullptr, GetCurrentThreadId());
+		int result = ::MessageBox(_hWnd, _text, _caption, _type);
+	if (hHook1) UnhookWindowsHookEx(hHook1);
+	if (hHook2) UnhookWindowsHookEx(hHook2);
+
 	return result;
 }
 
