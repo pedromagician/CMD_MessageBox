@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <map>
 #include <vector>
-#include "tchar.h"
-#include "atltypes.h"
+#include <io.h>
+#include <iostream>
+#include <fcntl.h>
+#include <atlbase.h>
 
 using namespace std;

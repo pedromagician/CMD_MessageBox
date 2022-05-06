@@ -83,7 +83,7 @@ LRESULT CALLBACK MessageBoxPos::SetPosition(int _code, WPARAM _wParam, LPARAM _l
 		break;
 	}
 	default: {
-		_tprintf(wstring(_T("Error - unknown position: ") + to_wstring(MessageBoxPos::MessageBoxPosition.type) + _T("\n")).c_str());
+		wcout << _T("Error - unknown position: ") + to_wstring(MessageBoxPos::MessageBoxPosition.type) << endl;
 		break;
 	}
 	}
@@ -162,7 +162,7 @@ int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT 
 			break;
 		}
 		default:
-			_tprintf(wstring(_T("Error - unknown position: ") + to_wstring(MessageBoxPos::MessageBoxPosition.type) + _T("\n")).c_str());
+			wcout << _T("Error - unknown position: ") + to_wstring(MessageBoxPos::MessageBoxPosition.type) << endl;
 			monitor = Monitors::GetMonitorInfoPrimary(monitorSize);
 			MessageBoxPos::MessageBoxPosition.position.x = GetDiameterX(monitorSize);
 			MessageBoxPos::MessageBoxPosition.position.y = GetDiameterY(monitorSize);
@@ -171,7 +171,7 @@ int MessageBoxPos::MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT 
 		}
 	}
 	else {
-		_tprintf(wstring(_T("Error - problem loading information from the monitor")).c_str());
+		wcout << _T("Error - problem loading information from the monitor") << endl;
 		MessageBoxPos::MessageBoxPosition.monitor = _PRIMARY;
 		MessageBoxPos::MessageBoxPosition.type = _XY;
 		MessageBoxPos::MessageBoxPosition.position.x = 0;

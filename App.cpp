@@ -7,6 +7,8 @@
 
 int _tmain(int _argc, _TCHAR* _pArgv[])
 {
+	_setmode(_fileno(stdout), _O_U8TEXT);
+
 	int correctParameters	= 0;
 	bool help		= false;
 	wstring title	= _T("");
@@ -84,7 +86,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	}
 
 	if (message.empty()) {
-		_tprintf(_T("Error - message is emnpty\n"));
+		wcout << _T("Error - message is emnpty") << endl;
 		return 1;
 	}
 
@@ -113,6 +115,6 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 		else resultButton = 3;
 	}
 
-	_tprintf(to_wstring(resultButton).c_str());
+	wcout << to_wstring(resultButton);
 	return 0;
 }
