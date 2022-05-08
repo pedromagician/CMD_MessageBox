@@ -12,7 +12,7 @@ CommandLine::~CommandLine()
 
 void CommandLine::Help()
 {
-	wcout << _T("MessageBox 0.5.3") << endl;
+	wcout << _T("MessageBox 0.5.4") << endl;
 	wcout << _T("	MessageBox for command line. Amiga Rulez!") << endl << endl;
 	wcout << _T("Usage:") << endl;
 	wcout << _T("	MessageBox [OPTIONS]") << endl << endl;
@@ -20,7 +20,10 @@ void CommandLine::Help()
 
 	for (const auto& it : mArguments) {
 		for (const auto& text : it.text) {
-			wcout << (_T("	") + text + _T(" xxx")) << endl;
+			if (it.type != _TRUE)
+				wcout << (_T("	") + text + _T(" xxx")) << endl;
+			else
+				wcout << (_T("	") + text) << endl;
 		}
 		wcout << (_T("		") + it.help) << endl;
 	}
