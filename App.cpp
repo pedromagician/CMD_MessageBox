@@ -107,7 +107,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 
 	if (type == CommandLine::Type::YesNoCancel)											MessageBoxPos::MessageBoxPosition.button3.first = IDCANCEL;
 
-	int resultButton = MessageBoxPos::MessageBox(nullptr, (LPCWSTR)message.c_str(), title.c_str(), type | icon | def);
+	int resultButton = MessageBoxPos::MessageBox(nullptr, (LPCWSTR)message.c_str(), title.c_str(), type | icon | def | MB_TOPMOST);
 
 	if (type == CommandLine::Type::YesNo) resultButton -= 5;
 	if (type == CommandLine::Type::YesNoCancel) {
