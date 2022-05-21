@@ -1,5 +1,6 @@
 ﻿#include "CommandLine.h"
 #include "Conversion.h"
+#include "version.h"
 
 CommandLine::CommandLine()
 {
@@ -12,10 +13,10 @@ CommandLine::~CommandLine()
 
 void CommandLine::Help()
 {
-	wcout << _T("MessageBox 0.5.4") << endl;
-	wcout << _T("	MessageBox for command line. Amiga Rulez!") << endl << endl;
+	wcout << VER_PRODUCTNAME_STR << _T(" ") << VER_FILE_VERSION_STR << endl;
+	wcout << _T("\t") << VER_FILE_DESCRIPTION_STR << endl << endl;
 	wcout << _T("Usage:") << endl;
-	wcout << _T("	MessageBox [OPTIONS]") << endl << endl;
+	wcout << _T("\t") << VER_ORIGINAL_FILENAME_STR << _T(" [OPTIONS]") << endl << endl;
 	wcout << _T("Options:") << endl;
 
 	for (const auto& it : mArguments) {
@@ -75,13 +76,15 @@ int CommandLine::ParseCommandLine(int _argc, _TCHAR* _pArgv[], int& _correctPara
 			if (find(mArguments[a].text.begin(), mArguments[a].text.end(), Conversion::TrimWhiteChar(_pArgv[i])) != mArguments[a].text.end()) {
 				if (mArguments[a].type == _STRING) {
 					i++;
-					if (i < _argc) {
-						wstring tmp = Conversion::TrimWhiteChar(_pArgv[i]);
-						Conversion::StringReplaceAll(tmp, _T("\\n"), _T("\n"));
-						*((wstring*)mArguments[a].pVar) = tmp;
-						_correctParameters++;
-						unknown = false;
+					if (i >= _argc) {
+						wcout << _T("Error - missing argument: ") + (wstring)_pArgv[i-1] << endl;
+						return 1;
 					}
+					wstring tmp = Conversion::TrimWhiteChar(_pArgv[i]);
+					Conversion::StringReplaceAll(tmp, _T("\\n"), _T("\n"));
+					*((wstring*)mArguments[a].pVar) = tmp;
+					_correctParameters++;
+					unknown = false;
 					break;
 				}
 				else if (mArguments[a].type == _TRUE) {
@@ -92,38 +95,44 @@ int CommandLine::ParseCommandLine(int _argc, _TCHAR* _pArgv[], int& _correctPara
 				}
 				else if (mArguments[a].type == _INT) {
 					i++;
-					if (i < _argc) {
-						*((int*)mArguments[a].pVar) = Conversion::ToInt(Conversion::TrimWhiteChar(_pArgv[i]));
-						_correctParameters++;
-						unknown = false;
+					if (i >= _argc) {
+						wcout << _T("Error - missing argument: ") + (wstring)_pArgv[i - 1] << endl;
+						return 1;
 					}
+					*((int*)mArguments[a].pVar) = Conversion::ToInt(Conversion::TrimWhiteChar(_pArgv[i]));
+					_correctParameters++;
+					unknown = false;
 					break;
 				}
 				else if (mArguments[a].type == _COLOR) {
 					i++;
-					if (i < _argc) {
-						((pair<bool, wstring>*)mArguments[a].pVar)->first = true;
-						((pair<bool, wstring>*)mArguments[a].pVar)->second = Conversion::TrimWhiteChar(_pArgv[i]);
-						_correctParameters++;
-						unknown = false;
+					if (i >= _argc) {
+						wcout << _T("Error - missing argument: ") + (wstring)_pArgv[i - 1] << endl;
+						return 1;
 					}
+					((pair<bool, wstring>*)mArguments[a].pVar)->first = true;
+					((pair<bool, wstring>*)mArguments[a].pVar)->second = Conversion::TrimWhiteChar(_pArgv[i]);
+					_correctParameters++;
+					unknown = false;
 					break;
 				}
 				else if (mArguments[a].type == _ENUM) {
 					i++;
-					if (i < _argc) {
-						wstring key = Conversion::ToLower(Conversion::TrimWhiteChar(_pArgv[i]));
-						auto search = mArguments[a].pTable->find(key);
-						if (search != mArguments[a].pTable->end()) {
-							*((UINT*)mArguments[a].pVar) = search->second;
-							unknown = false;
-						}
-						else {
-							wcout << _T("Error - bad argument: ") + mArguments[a].text[0] + _T(" ") + key << endl;
-							return 1;
-						}
-						_correctParameters++;
+					if (i >= _argc) {
+						wcout << _T("Error - missing argument: ") + (wstring)_pArgv[i - 1] << endl;
+						return 1;
 					}
+					wstring key = Conversion::ToLower(Conversion::TrimWhiteChar(_pArgv[i]));
+					auto search = mArguments[a].pTable->find(key);
+					if (search != mArguments[a].pTable->end()) {
+						*((UINT*)mArguments[a].pVar) = search->second;
+						unknown = false;
+					}
+					else {
+						wcout << _T("Error - bad argument: ") + mArguments[a].text[0] + _T(" ") + key << endl;
+						return 1;
+					}
+					_correctParameters++;
 					break;
 				}
 				else {
