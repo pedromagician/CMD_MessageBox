@@ -17,6 +17,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	CommandLine::Icon icon			= CommandLine::Icon::NoIcon;
 	CommandLine::DefaultButton def	= CommandLine::DefaultButton::Def1;
 	wstring monitor		= _T("primary");
+	bool windowsReturnCode = false;
 
 	map<wstring, UINT> string2icon{
 		{_T("noicon"),		0x00000000L},
@@ -74,10 +75,11 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	cmd.Add(CommandLine::_ENUM,		2, _T("-position"), _T("-pos"),				_T("The 'xxx' argument specifies the default position. Allowed options: Center|Top|Bottom|Left|Right|Pointer|xy."),				&MessageBoxPos::MessageBoxPosition.type,	&string2positionType);
 	cmd.Add(CommandLine::_INT,		1, _T("-x"),								_T("The 'xxx' argument specifies the position offset along the X coordinate."),													&MessageBoxPos::MessageBoxPosition.delta.x);
 	cmd.Add(CommandLine::_INT,		1, _T("-y"),								_T("The 'xxx' argument specifies the position offset along the Y coordinate."),													&MessageBoxPos::MessageBoxPosition.delta.y);
+	cmd.Add(CommandLine::_TRUE,		2, _T("-windowsReturnCode"),	_T("-wrc"),	_T("The argument enables the Windows return code."),																			&windowsReturnCode);
 
 	if (cmd.ParseCommandLine(_argc, _pArgv, correctParameters) != 0) {
 		cmd.Help();
-		return 1;
+		return 0;
 	}
 
 	if (help || correctParameters == 0) {
@@ -87,7 +89,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 
 	if (message.empty()) {
 		wcout << _T("Error - message is emnpty") << endl;
-		return 1;
+		return 0;
 	}
 
 	monitor = Conversion::ToLower(Conversion::TrimWhiteChar(monitor));
@@ -115,6 +117,31 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 		else resultButton = 3;
 	}
 
+	if (windowsReturnCode) {
+		switch (type) {
+		case CommandLine::Type::Ok: {
+			resultButton = IDOK;
+			break;
+		}
+		case CommandLine::Type::OkCancel: {
+			if (resultButton == 1) resultButton = IDOK;
+			else if (resultButton == 2) resultButton = IDCANCEL;
+			break;
+		}
+		case CommandLine::Type::YesNo: {
+			if (resultButton == 1) resultButton = IDYES;
+			else if (resultButton == 2) resultButton = IDNO;
+			break;
+		}
+		case CommandLine::Type::YesNoCancel: {
+			if (resultButton == 1) resultButton = IDYES;
+			else if (resultButton == 2) resultButton = IDNO;
+			else if (resultButton == 3) resultButton = IDCANCEL;
+			break;
+		}
+		}
+	}
+
 	wcout << to_wstring(resultButton);
-	return 0;
+	return resultButton;
 }
