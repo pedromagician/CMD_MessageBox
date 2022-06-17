@@ -17,7 +17,8 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	CommandLine::Icon icon			= CommandLine::Icon::NoIcon;
 	CommandLine::DefaultButton def	= CommandLine::DefaultButton::Def1;
 	wstring monitor		= _T("primary");
-	bool windowsReturnCode = false;
+	bool windowsReturnCode	= false;
+	bool quiet				= false;
 
 	map<wstring, UINT> string2icon{
 		{_T("noicon"),		0x00000000L},
@@ -76,6 +77,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	cmd.Add(CommandLine::_INT,		1, _T("-x"),								_T("The 'xxx' argument specifies the position offset along the X coordinate."),													&MessageBoxPos::MessageBoxPosition.delta.x);
 	cmd.Add(CommandLine::_INT,		1, _T("-y"),								_T("The 'xxx' argument specifies the position offset along the Y coordinate."),													&MessageBoxPos::MessageBoxPosition.delta.y);
 	cmd.Add(CommandLine::_TRUE,		2, _T("-windowsReturnCode"),	_T("-wrc"),	_T("The argument enables the Windows return code."),																			&windowsReturnCode);
+	cmd.Add(CommandLine::_TRUE,		1, _T("-quiet"),							_T("The argument disables output to the command line."),																		&quiet);
 
 	if (cmd.ParseCommandLine(_argc, _pArgv, correctParameters) != 0) {
 		cmd.Help();
@@ -142,6 +144,8 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 		}
 	}
 
-	wcout << to_wstring(resultButton);
+	if (quiet == false)
+		wcout << to_wstring(resultButton);
+
 	return resultButton;
 }
