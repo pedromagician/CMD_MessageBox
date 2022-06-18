@@ -8,4 +8,4 @@ MessageBox for Windows command line.
 @messagebox -message "yes or no" -button yesno>>1.bat\
 @echo errorlevel=%errorlevel%\
 @call 1.bat\
-@echo output=%mytmp%\
+@echo output=%mytmp%
