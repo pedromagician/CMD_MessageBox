@@ -32,7 +32,7 @@ public:
 		pair<int, wstring> button3;
 	};
 
-	static thread_local InformationAboutPositionOfMessageBox MessageBoxPosition;
+	static InformationAboutPositionOfMessageBox& MessageBoxPosition() { static thread_local InformationAboutPositionOfMessageBox mMessageBoxPosition; return mMessageBoxPosition; };
 
 	static int MessageBox(HWND _hWnd, LPCTSTR _text, LPCTSTR _caption, UINT _type);
 private:
