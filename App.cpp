@@ -63,8 +63,8 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	MessageBoxPos::MessageBoxPosition().button1.first	= MessageBoxPos::MessageBoxPosition().button2.first	= MessageBoxPos::MessageBoxPosition().button3.first	= 0;
 
 	CommandLine cmd;
-	cmd.Add(CommandLine::_STRING,	2, _T("-title"),	_T("-t"),				_T("The 'xxx' argument specifies the title of the message box."),																&title);
-	cmd.Add(CommandLine::_STRING,	2, _T("-message"),	_T("-m"),				_T("The 'xxx' argument specifies the text of the message box. Newline can be embedded using \\n."),								&message);
+	cmd.Add(CommandLine::_STRING,	2, _T("-title"),	_T("-t"),				_T("The 'xxx' argument specifies the title of the message box."),																				&title);
+	cmd.Add(CommandLine::_STRING,	2, _T("-message"),	_T("-m"),				_T("The 'xxx' argument specifies the text of the message box. Newline can be embedded using \\n. Inserting Unicode characters \\u{1F44D}."),	&message);
 	cmd.Add(CommandLine::_TRUE,		3, _T("-help"),		_T("-h"),	_T("-?"),	_T("To view help."),																											&help);
 	cmd.Add(CommandLine::_ENUM,		2, _T("-icon"),		_T("-i"),				_T("The 'xxx' argument specifies the text of the message box. Allowed options: NoIcon|Information|Question|Warning|Error."),	&icon,		&string2icon);
 	cmd.Add(CommandLine::_ENUM,		2, _T("-button"),	_T("-b"),				_T("The 'xxx' argument specifies the type of the message box. Allowed options: Ok|OkCancel|YesNo|YesNoCancel|1|2|3."),			&type,		&string2button);
@@ -110,6 +110,9 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	if (type == CommandLine::Type::YesNo	|| type == CommandLine::Type::YesNoCancel)	MessageBoxPos::MessageBoxPosition().button2.first = IDNO;
 
 	if (type == CommandLine::Type::YesNoCancel)											MessageBoxPos::MessageBoxPosition().button3.first = IDCANCEL;
+
+	Conversion::UnicodeCodeConverter(title);
+	Conversion::UnicodeCodeConverter(message);
 
 	int resultButton = MessageBoxPos::MessageBox(nullptr, (LPCWSTR)message.c_str(), title.c_str(), type | icon | def | MB_TOPMOST);
 
