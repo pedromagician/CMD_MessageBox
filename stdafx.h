@@ -10,4 +10,9 @@
 #include <fcntl.h>
 #include <atlbase.h>
 
+#include "Debug.h"
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 using namespace std;
