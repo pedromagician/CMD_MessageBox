@@ -64,21 +64,21 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	MessageBoxPos::MessageBoxPosition().button1.first	= MessageBoxPos::MessageBoxPosition().button2.first	= MessageBoxPos::MessageBoxPosition().button3.first	= 0;
 
 	CommandLine cmd;
-	cmd.Add(CommandLine::_STRING,	2, _T("-title"),	_T("-t"),				_T("The 'xxx' argument specifies the title of the message box."),																				&title);
-	cmd.Add(CommandLine::_STRING,	2, _T("-message"),	_T("-m"),				_T("The 'xxx' argument specifies the text of the message box. Newline can be embedded using \\n. Inserting Unicode characters \\u{1F44D}."),	&message);
-	cmd.Add(CommandLine::_TRUE,		3, _T("-help"),		_T("-h"),	_T("-?"),	_T("To view help."),																											&help);
-	cmd.Add(CommandLine::_ENUM,		2, _T("-icon"),		_T("-i"),				_T("The 'xxx' argument specifies the text of the message box. Allowed options: NoIcon|Information|Question|Warning|Error."),	&icon,		&string2icon);
-	cmd.Add(CommandLine::_ENUM,		2, _T("-button"),	_T("-b"),				_T("The 'xxx' argument specifies the type of the message box. Allowed options: Ok|OkCancel|YesNo|YesNoCancel|1|2|3."),			&type,		&string2button);
-	cmd.Add(CommandLine::_STRING,	1, _T("-b1"),								_T("The 'xxx' argument specifies the text of the button 1."),																	&MessageBoxPos::MessageBoxPosition().button1.second);
-	cmd.Add(CommandLine::_STRING,	1, _T("-b2"),								_T("The 'xxx' argument specifies the text of the button 2."),																	&MessageBoxPos::MessageBoxPosition().button2.second);
-	cmd.Add(CommandLine::_STRING,	1, _T("-b3"),								_T("The 'xxx' argument specifies the text of the button 3."),																	&MessageBoxPos::MessageBoxPosition().button3.second);
-	cmd.Add(CommandLine::_ENUM,		2, _T("-default"),	_T("-d"),				_T("The 'xxx' argument specifies the default button. Allowed options: 1|2|3."),													&def,		&string2default);
-	cmd.Add(CommandLine::_STRING,	2, _T("-monitor"),	_T("-mon"),				_T("The 'xxx' argument specifies the default monitor. Allowed options: Primary|Mouse|MousePointer|0|1|2|n."),					&monitor);
-	cmd.Add(CommandLine::_ENUM,		2, _T("-position"), _T("-pos"),				_T("The 'xxx' argument specifies the default position. Allowed options: Center|Top|Bottom|Left|Right|Pointer|xy."),				&MessageBoxPos::MessageBoxPosition().type,	&string2positionType);
-	cmd.Add(CommandLine::_INT,		1, _T("-x"),								_T("The 'xxx' argument specifies the position offset along the X coordinate."),													&MessageBoxPos::MessageBoxPosition().delta.x);
-	cmd.Add(CommandLine::_INT,		1, _T("-y"),								_T("The 'xxx' argument specifies the position offset along the Y coordinate."),													&MessageBoxPos::MessageBoxPosition().delta.y);
-	cmd.Add(CommandLine::_TRUE,		2, _T("-windowsReturnCode"),	_T("-wrc"),	_T("The argument enables the Windows return code."),																			&windowsReturnCode);
-	cmd.Add(CommandLine::_TRUE,		1, _T("-quiet"),							_T("The argument disables output to the command line."),																		&quiet);
+	cmd.Add(CommandLine::_STRING,	2, _T("title"),		_T("t"),				_T("The 'xxx' argument specifies the title of the message box."),																				&title);
+	cmd.Add(CommandLine::_STRING,	2, _T("message"),	_T("m"),				_T("The 'xxx' argument specifies the text of the message box. Newline can be embedded using \\n. Inserting Unicode characters \\u{1F44D}."),	&message);
+	cmd.Add(CommandLine::_TRUE,		3, _T("help"),		_T("h"),	_T("?"),	_T("To view help."),																											&help);
+	cmd.Add(CommandLine::_ENUM,		2, _T("icon"),		_T("i"),				_T("The 'xxx' argument specifies the text of the message box. Allowed options: NoIcon|Information|Question|Warning|Error."),	&icon,		&string2icon);
+	cmd.Add(CommandLine::_ENUM,		2, _T("button"),	_T("b"),				_T("The 'xxx' argument specifies the type of the message box. Allowed options: Ok|OkCancel|YesNo|YesNoCancel|1|2|3."),			&type,		&string2button);
+	cmd.Add(CommandLine::_STRING,	1, _T("b1"),								_T("The 'xxx' argument specifies the text of the button 1."),																	&MessageBoxPos::MessageBoxPosition().button1.second);
+	cmd.Add(CommandLine::_STRING,	1, _T("b2"),								_T("The 'xxx' argument specifies the text of the button 2."),																	&MessageBoxPos::MessageBoxPosition().button2.second);
+	cmd.Add(CommandLine::_STRING,	1, _T("b3"),								_T("The 'xxx' argument specifies the text of the button 3."),																	&MessageBoxPos::MessageBoxPosition().button3.second);
+	cmd.Add(CommandLine::_ENUM,		2, _T("default"),	_T("d"),				_T("The 'xxx' argument specifies the default button. Allowed options: 1|2|3."),													&def,		&string2default);
+	cmd.Add(CommandLine::_STRING,	2, _T("monitor"),	_T("mon"),				_T("The 'xxx' argument specifies the default monitor. Allowed options: Primary|Mouse|MousePointer|0|1|2|n."),					&monitor);
+	cmd.Add(CommandLine::_ENUM,		2, _T("position"),	_T("pos"),				_T("The 'xxx' argument specifies the default position. Allowed options: Center|Top|Bottom|Left|Right|Pointer|xy."),				&MessageBoxPos::MessageBoxPosition().type,	&string2positionType);
+	cmd.Add(CommandLine::_INT,		1, _T("x"),									_T("The 'xxx' argument specifies the position offset along the X coordinate."),													&MessageBoxPos::MessageBoxPosition().delta.x);
+	cmd.Add(CommandLine::_INT,		1, _T("y"),									_T("The 'xxx' argument specifies the position offset along the Y coordinate."),													&MessageBoxPos::MessageBoxPosition().delta.y);
+	cmd.Add(CommandLine::_TRUE,		2, _T("windowsReturnCode"),		_T("wrc"),	_T("The argument enables the Windows return code."),																			&windowsReturnCode);
+	cmd.Add(CommandLine::_TRUE,		1, _T("quiet"),								_T("The argument disables output to the command line."),																		&quiet);
 
 	if (cmd.ParseCommandLine(_argc, _pArgv, correctParameters) != 0) {
 		cmd.Help();
