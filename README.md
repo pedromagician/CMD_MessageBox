@@ -1,6 +1,9 @@
 # MessageBox
 MessageBox for Windows command line.
 
+Redistributable x86 packages are required to run the program
+https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
+
 ![bench](https://raw.githubusercontent.com/pedromagician/CMD_MessageBox/main/pic/screenshot.png)
 
 
