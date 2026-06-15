@@ -10,7 +10,7 @@ Perfect for scripts, automation, installers, batch workflows, or any situation w
 ## ✨ Features
 
 - Custom title and message text
-- Unicode support (\u{XXXX})
+- Unicode support (\u\{XXXX})
 - Customizable icons
 - Multiple button layouts
 - Custom button labels
@@ -41,7 +41,6 @@ MessageBox.exe -t Title -m Message
 | `-x`, `-y` | Offset in pixels |
 | `-windowsReturnCode`, `-wrc` | Enables standard Windows MessageBox return codes. |
 | `-quiet` | Suppresses console output. |
-| `xxxxxxx` | xxxxxxxxxxxxxxxx |
 
 ## 📘 Examples
 
@@ -66,7 +65,7 @@ Store the selected value into a variable:
 Or capture the output directly:
 
 ```CMD
-@set "FILE="
+@set "output="
 @for /f "usebackq delims=" %%A in (`messagebox -message "yes or no" -button yesno`) do @set "output=%%A"
 @echo output: %output%
 ```

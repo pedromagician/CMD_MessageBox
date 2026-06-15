@@ -257,6 +257,7 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 				if (i + 1 >= _argc) return false;
 				*found->outString = _argv[++i];
 			}
+			*found->outString = Conversion::ParseEscapeString(*found->outString);
 			found->seen = true;
 			_correctCount++;
 			break;
