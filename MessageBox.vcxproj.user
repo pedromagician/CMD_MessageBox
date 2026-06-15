@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-t title\u{1F44D}👍. -m message\u{1F44D}👍\nline2\nline3. -mon mouse -b 3 -b1 111 -b2 22 -b3 xxxx -icon error</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArgumentsHistory>-t title\u{1F44D}👍. -m message\u{1F44D}👍. -mon mouse -b 3 -b1 111 -b2 22 -b3 xxxx -icon error|-t title\u{1F44D}👍. -m message\u{1F44D}👍\nline2\nline3. -mon mouse -b 3 -b1 111 -b2 22 -b3 xxxx -icon error|</LocalDebuggerCommandArgumentsHistory>
+    <LocalDebuggerWorkingDirectory>$(SolutionDir)Debug\</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerWorkingDirectory>$(SolutionDir)Release\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
