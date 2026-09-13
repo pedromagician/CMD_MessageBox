@@ -41,6 +41,7 @@ MessageBox.exe -t Title -m Message
 | `-x`, `-y` | Offset in pixels |
 | `-windowsReturnCode`, `-wrc` | Enables standard Windows MessageBox return codes. |
 | `-quiet` | Suppresses console output. |
+| `-help`, `-h`, `-?` | Displays help information. |
 
 ## 📘 Examples
 

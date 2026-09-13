@@ -75,7 +75,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 
 		cmd.AddString({ _T("message"), _T("m") },
 			_T("Specifies the message text displayed in the dialog. Use \\n for line breaks; Unicode supported via \\u{XXXX} (e.g., \\u{1F44D})."),
-			message);
+			message, true);
 
 		cmd.AddBool({ _T("help"), _T("h"), _T("?") },
 			_T("Displays this help information."),
@@ -134,7 +134,11 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 		return 0;
 	}
 
-	if (!cmd.ParseCommandLine(_argc, _pArgv, correctParameters) || correctParameters == 0 || help) {
+	if (!cmd.ParseCommandLine(_argc, _pArgv, correctParameters)) {
+		wprintf(L"Run with -help for usage information.\n");
+		return 0;
+	}
+	if (correctParameters == 0 || help) {
 		cmd.Help();
 		return 0;
 	}

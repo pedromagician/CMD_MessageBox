@@ -9,7 +9,7 @@ CommandLine::CommandLine() : mHelp(false)
 
 CommandLine::ParamDef::ParamDef()
 	: type(ParamType::BOOL),
-	required(RequiredParam::Optional), hasDefault(false),
+	required(RequiredParam::Optional), hasDefault(false), parseEscapes(false),
 	outBool(nullptr), outInt(nullptr), outString(nullptr), outEnum(nullptr), outChar(nullptr), outColor(nullptr),
 	defaultBool(false),
 	defaultInt(0),
@@ -91,12 +91,12 @@ void CommandLine::AddInt(const vector<wstring>& _names, const wstring& _desc, in
 	AddParamBase(p);
 }
 
-void CommandLine::AddString(const vector<wstring>& _names, const wstring& _desc, wstring& _outVar)
+void CommandLine::AddString(const vector<wstring>& _names, const wstring& _desc, wstring& _outVar, bool _parseEscapes)
 {
-	AddString(_names, _desc, _outVar, RequiredParam::Optional, _outVar);
+	AddString(_names, _desc, _outVar, RequiredParam::Optional, _outVar, _parseEscapes);
 }
 
-void CommandLine::AddString(const vector<wstring>& _names, const wstring& _desc, wstring& _outVar, RequiredParam _required, const wstring& _defaultValue)
+void CommandLine::AddString(const vector<wstring>& _names, const wstring& _desc, wstring& _outVar, RequiredParam _required, const wstring& _defaultValue, bool _parseEscapes)
 {
 	ParamDef p;
 	p.names = _names;
@@ -106,6 +106,7 @@ void CommandLine::AddString(const vector<wstring>& _names, const wstring& _desc,
 	p.required = _required;
 	p.hasDefault = (_required == RequiredParam::Optional);
 	p.defaultString = _defaultValue;
+	p.parseEscapes = _parseEscapes;
 
 	AddParamBase(p);
 }
@@ -242,15 +243,13 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 			else {
 				if (value == L"1" || Conversion::ToLower(value) == L"true" || Conversion::ToLower(value) == L"on")
 					*found->outBool = true;
-				else if (value == L"0" || Conversion::ToLower(value) == L"false")
+				else if (value == L"0" || Conversion::ToLower(value) == L"false" || Conversion::ToLower(value) == L"off")
 					*found->outBool = false;
 				else {
 					wprintf(L"Invalid boolean value: %s\n", value.c_str());
 					return false;
 				}
 			}
-			found->seen = true;
-			_correctCount++;
 			break;
 		}
 		case ParamType::INT: {
@@ -259,13 +258,11 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 			}
 			else {
 				if (i + 1 >= _argc || LooksLikeKnownFlag(_argv[i + 1])) {
-					wprintf(L"Missing value for parameter -%ls\n", found->names[0].c_str());
+					wprintf(L"Missing value for parameter -%s\n", found->names[0].c_str());
 					return false;
 				}
 				*found->outInt = _wtoi(_argv[++i]);
 			}
-			found->seen = true;
-			_correctCount++;
 			break;
 		}
 		case ParamType::STRING: {
@@ -274,55 +271,41 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 			}
 			else {
 				if (i + 1 >= _argc || LooksLikeKnownFlag(_argv[i + 1])) {
-					wprintf(L"Missing value for parameter -%ls\n", found->names[0].c_str());
+					wprintf(L"Missing value for parameter -%s\n", found->names[0].c_str());
 					return false;
 				}
 				*found->outString = _argv[++i];
 			}
-			*found->outString = Conversion::ParseEscapeString(*found->outString);
-			found->seen = true;
-			_correctCount++;
+			if (found->parseEscapes)
+				*found->outString = Conversion::ParseEscapeString(*found->outString);
 			break;
 		}
 		case ParamType::ENUM: {
+			wstring val;
 			if (!value.empty()) {
-				wstring valLower = Conversion::ToLower(value);
-				bool matched = false;
-				for (auto& kv : found->enumMap) {
-					if (Conversion::ToLower(kv.first) == valLower) {
-						*found->outEnum = kv.second;
-						matched = true;
-						break;
-					}
-				}
-				if (!matched) {
-					wprintf(L"Invalid enum value: %s\n", value.c_str());
-					return false;
-				}
+				val = value;
 			}
 			else {
 				if (i + 1 >= _argc || LooksLikeKnownFlag(_argv[i + 1])) {
-					wprintf(L"Missing value for parameter -%ls\n", found->names[0].c_str());
+					wprintf(L"Missing value for parameter -%s\n", found->names[0].c_str());
 					return false;
 				}
-				wstring val = _argv[++i];
+				val = _argv[++i];
+			}
 
-				wstring valLower = Conversion::ToLower(val);
-				bool matched = false;
-				for (auto& kv : found->enumMap) {
-					if (Conversion::ToLower(kv.first) == valLower) {
-						*found->outEnum = kv.second;
-						matched = true;
-						break;
-					}
-				}
-				if (!matched) {
-					wprintf(L"Invalid enum value: %s\n", val.c_str());
-					return false;
+			wstring valLower = Conversion::ToLower(val);
+			bool matched = false;
+			for (auto& kv : found->enumMap) {
+				if (Conversion::ToLower(kv.first) == valLower) {
+					*found->outEnum = kv.second;
+					matched = true;
+					break;
 				}
 			}
-			found->seen = true;
-			_correctCount++;
+			if (!matched) {
+				wprintf(L"Invalid enum value: %s\n", val.c_str());
+				return false;
+			}
 			break;
 		}
 		case ParamType::CHAR: {
@@ -336,7 +319,7 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 			}
 			else {
 				if (i + 1 >= _argc || LooksLikeKnownFlag(_argv[i + 1])) {
-					wprintf(L"Missing value for parameter -%ls\n", found->names[0].c_str());
+					wprintf(L"Missing value for parameter -%s\n", found->names[0].c_str());
 					return false;
 				}
 				wstring val = Conversion::TrimWhiteChar(_argv[++i]);
@@ -346,8 +329,6 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 				}
 				*found->outChar = val[0];
 			}
-			found->seen = true;
-			_correctCount++;
 			break;
 		}
 
@@ -380,38 +361,32 @@ bool CommandLine::ParseCommandLine(int _argc, wchar_t** _argv, int& _correctCoun
 				return false;
 			}
 
-			try {
-				wstring hexPart = valStr.substr(0, 6);
+			wstring hexPart = valStr.substr(0, 6);
 
-				for (wchar_t c : hexPart) {
-					if (!iswxdigit(c)) {
-						wprintf(L"Invalid character in color value for -%s: %lc\n", found->names[0].c_str(), c);
-						return false;
-					}
-				}
-
-				unsigned long r = wcstol(hexPart.substr(0, 2).c_str(), nullptr, 16);
-				unsigned long g = wcstol(hexPart.substr(2, 2).c_str(), nullptr, 16);
-				unsigned long b = wcstol(hexPart.substr(4, 2).c_str(), nullptr, 16);
-
-				if (r > 255 || g > 255 || b > 255) {
-					wprintf(L"Color values must be between 0 and 255\n");
+			for (wchar_t c : hexPart) {
+				if (!iswxdigit(c)) {
+					wprintf(L"Invalid character in color value for -%s: %lc\n", found->names[0].c_str(), c);
 					return false;
 				}
-
-				*found->outColor = ColorRGB((unsigned char)r, (unsigned char)g, (unsigned char)b);
 			}
-			catch (...) {
-				wprintf(L"Error parsing color value for -%s\n", found->names[0].c_str());
+
+			unsigned long r = wcstol(hexPart.substr(0, 2).c_str(), nullptr, 16);
+			unsigned long g = wcstol(hexPart.substr(2, 2).c_str(), nullptr, 16);
+			unsigned long b = wcstol(hexPart.substr(4, 2).c_str(), nullptr, 16);
+
+			if (r > 255 || g > 255 || b > 255) {
+				wprintf(L"Color values must be between 0 and 255\n");
 				return false;
 			}
 
-			found->seen = true;
-			_correctCount++;
+			*found->outColor = ColorRGB((unsigned char)r, (unsigned char)g, (unsigned char)b);
 			break;
 		}
 
 		}
+
+		found->seen = true;
+		_correctCount++;
 	}
 
 	// check required
