@@ -67,6 +67,7 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	MessageBoxPos::MessageBoxPosition().button1.first	= MessageBoxPos::MessageBoxPosition().button2.first		= MessageBoxPos::MessageBoxPosition().button3.first		= 0;
 
 	CommandLine cmd;
+	try
 	{
 		cmd.AddString({ _T("title"), _T("t") },
 			_T("Specifies the title text displayed in the message box window."),
@@ -128,6 +129,10 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 			_T("Disables output logging to the command line."),
 			quiet);
 	}
+	catch (const exception& e) {
+		wcout << _T("Error - invalid command line parameter definition: ") << e.what() << endl;
+		return 0;
+	}
 
 	if (!cmd.ParseCommandLine(_argc, _pArgv, correctParameters) || correctParameters == 0 || help) {
 		cmd.Help();
@@ -168,6 +173,13 @@ int _tmain(int _argc, _TCHAR* _pArgv[])
 	int resultButton = MessageBoxPos::MessageBox(nullptr, (LPCWSTR)message.c_str(), title.c_str(), flags);
 
 	if (resultButton != 0) {
+		if (type == (int)Type::Ok) {
+			resultButton = 1;
+		}
+		if (type == (int)Type::OkCancel) {
+			if (resultButton == IDOK) resultButton = 1;
+			else resultButton = 2;
+		}
 		if (type == (int)Type::YesNo) {
 			if (resultButton == IDYES) resultButton = 1;
 			else resultButton = 2;

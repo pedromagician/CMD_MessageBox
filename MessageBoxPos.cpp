@@ -7,7 +7,7 @@ static inline CBT_CREATEWND* AsCreateStruct(int code, LPARAM lParam)
 		return nullptr;
 
 	auto* s = reinterpret_cast<CBT_CREATEWND*>(lParam);
-	if (!s || s->lpcs->hwndParent != nullptr)
+	if (!s || !s->lpcs || s->lpcs->hwndParent != nullptr)
 		return nullptr;
 
 	return s;
